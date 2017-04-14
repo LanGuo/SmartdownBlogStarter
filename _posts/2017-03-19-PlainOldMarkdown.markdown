@@ -1,5 +1,7 @@
 ---
+layout: blog
 title: Plain Old Markdown
+published: true
 ---
 
 
@@ -7,3 +9,4 @@ title: Plain Old Markdown
 
 Markdown is Cool
 
+Trying out editing with Prose.io
