@@ -2,7 +2,8 @@
 layout: blog
 published: false
 ---
-## Experiment with text analysis
+## Experiment with text analysis![AMZN collagen review text analysis_7_1.png]({{site.baseurl}}/media/AMZN collagen review text analysis_7_1.png)
+
 
 
     ### This notebook is an experiment to scrape content from the web and do some semantic analysis with text data.
