@@ -42,167 +42,49 @@ for s in documents:
         f.write(s+u'\n')  #write each sentence on a new line in txt file
 ```
 
-##### -- load text back out and do theme/feature extraction -- 
-```
+#### -- Construct new documents corpus with each sentence in reviews forming an individual document -- 
+```    
 import codecs
 documents = codecs.open('/Users/Lan/Documents/kaggle/aztest.txt', encoding='utf-8').readlines()
 ```
 
-#### -- Tokenize documents -- 
-```    
-# Having first installed nltk and downloaded nltk data:
+##### -- Tokenize documents -- 
+```
 from nltk.tokenize import sent_tokenize  #This is the 'current recommended' sentence tokenizer in nltk
-#?sent_tokenize #to see which underlying model is this using:  currently :class:`.PunktSentenceTokenizer`
-sent_tokenize_list = [sent_tokenize(doc) for doc in documents]
+sent_tokenized_per_doc = [sent_tokenize(doc) for doc in documents]
+sent_tokenize_list = [item for sublist in sent_tokenized_per_doc for item in sublist]
+#sent_tokenize_list[5].split('...') #This sentence is a bit messed up...
     
 from nltk.tokenize import word_tokenize #This is the 'current recommended' word tokenizer in nltk
 # NOTE: word tokenizer kept the end '.' of each sentence as one token
-word_tokenize_per_doc = [word_tokenize(doc) for doc in documents]
-    
-#word_tokenize_per_sent = [word_tokenize(sent) for sent in sent_tokenize_list] #keep sentence as individual documents
-#word_tokenize_list_all = word_tokenize(text) #lump all sentences into one document
+word_tokenize_per_sent = [word_tokenize(sent) for sent in sent_tokenize_list]
 ```    
-
-#### -- Cleaning: Remove stop words and punctuation -- 
-```    
+##### -- Cleaning: Remove stop words and punctuation -- 
+```
 from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 import string
 stop = set(stopwords.words('english'))
+stop.update({"'s","'t","n't","'m","'ve","per","'re","-i","\'\'","\u2014","still","much"}) #After inspecting the output, found some prevalent spelling of trivial words to remove
 exclude_punc = set(string.punctuation)
 exclude_punc.update({'--','...'}) # After inspecting the output, found some nonconventional punctuations used in the review
+
 lemma = WordNetLemmatizer()
     
-stop_free_per_doc = [[word.lower() for word in doc if word.lower() not in stop] for doc in word_tokenize_per_doc] #remove common stop words
-punc_free_per_doc = [[word for word in doc if word not in exclude_punc] for doc in stop_free_per_doc] #remove punctuations
-```
-
-#### -- Cleaning: normalize/lemmatize words -- 
+# From here on *doc* = one sentence
+stop_free_per_doc = [[word.lower() for word in sent if word.lower() not in stop] for sent in word_tokenize_per_sent] #remove common stop words
+punc_free_per_doc = [[word for word in sent if word not in exclude_punc] for sent in stop_free_per_doc] #remove punctuations
+```    
+##### -- Cleaning: normalize/lemmatize words -- 
 ```
 #First time try to run this straight, got: UnicodeDecodeError: 'ascii' codec can't decode byte 0xe2 in position 0: ordinal not in range(128)
 #Seems like there are some weird non-ascii characters trialing some words or mixed in between words
-normalized_per_doc = []
-normalized_this_doc = []
-for doc in punc_free_per_doc:
-    for word in doc:
-        try:
-            lemma.lemmatize(word) #lemmatize (normalize/get root of) words
-            normalized_this_doc.append(word)
-        except UnicodeDecodeError:
-            print word #these are the weird non-ascii characters mixed into words, can ignore them or manually add the stem to normalized
-    normalized_per_doc.append(normalized_this_doc)
-        
-num_reviews = len(normalized_per_doc) #There were 10 reviews extracted
-    
-    
-#normalized_per_doc[0]
+normalized_per_doc2 = [[lemma.lemmatize(word) for word in doc] for doc in punc_free_per_doc]
+print(normalized_per_doc2[10])
+```    
+
+##### -- Prepare document-term matrix -- 
 ```
-
-
-```
-# Output:
-    [u'love',
-     u'stuff',
-     u'stir',
-     u'morning',
-     u'coffee',
-     u'afternoon',
-     u'yogurt',
-     u'sometimes',
-     u'evening',
-     u'tea',
-     u'mixes',
-     u'well',
-     u"'s",
-     u'flavorless',
-     u'ca',
-     u"n't",
-     u'tell',
-     u"'s",
-     u'digests',
-     u'easily',
-     u'aches',
-     u'pains',
-     u'fading',
-     u'tons',
-     u'reasons',
-     u'gelatin',
-     u'superfood',
-     u'particular',
-     ...]
-```
-
-    # -- Prepare document-term matrix -- #
-    import gensim
-    from gensim import corpora
-    
-    # Create the dictionary of our corpus, where every unique term(token) is assigned an index
-    dictionary = corpora.Dictionary(normalized_per_doc)
-    #dictionary.token2id
-    
-    # Convert tokenized documents to vectors using dict prepared above:
-    doc_term_matrix = [dictionary.doc2bow(doc) for doc in normalized_per_doc]
-    #print(doc_term_matrix[0])
-
-
-    # -- Create LDA model -- #
-    lda = gensim.models.ldamodel.LdaModel
-    
-    # Run and train lda model on doc_term_matrix
-    #ldamodel = lda(doc_term_matrix,num_topics=2,id2word=dictionary,passes=20)
-    
-    ldamodel.print_topics(num_topics=2)
-    
-    # ! I did the normalized_per_doc wrong and all docs ended up with all the same words (all words in all docs)
-
-
-
-
-    [(0,
-      u'0.015*"\'s" + 0.013*"product" + 0.013*"collagen" + 0.011*"take" + 0.010*"hair" + 0.010*"great" + 0.009*"n\'t" + 0.008*"day" + 0.007*"container" + 0.007*"much"'),
-     (1,
-      u'0.002*"product" + 0.002*"collagen" + 0.002*"\'s" + 0.002*"n\'t" + 0.002*"great" + 0.002*"hair" + 0.002*"take" + 0.002*"taking" + 0.002*"one" + 0.002*"much"')]
-
-
-
-
-    # **** 20161120 Night ~5:30-9:30pm **** #
-    
-    # -- Construct new documents corpus with each sentence in reviews forming an individual document -- #
-    import codecs
-    documents = codecs.open('/Users/Lan/Documents/kaggle/aztest.txt', encoding='utf-8').readlines()
-    
-    # -- Tokenize documents -- #
-    from nltk.tokenize import sent_tokenize  #This is the 'current recommended' sentence tokenizer in nltk
-    sent_tokenized_per_doc = [sent_tokenize(doc) for doc in documents]
-    sent_tokenize_list = [item for sublist in sent_tokenized_per_doc for item in sublist]
-    #sent_tokenize_list[5].split('...') #This sentence is a bit messed up...
-    
-    from nltk.tokenize import word_tokenize #This is the 'current recommended' word tokenizer in nltk
-    # NOTE: word tokenizer kept the end '.' of each sentence as one token
-    word_tokenize_per_sent = [word_tokenize(sent) for sent in sent_tokenize_list]
-    
-    # -- Cleaning: Remove stop words and punctuation -- #
-    from nltk.corpus import stopwords
-    from nltk.stem.wordnet import WordNetLemmatizer
-    import string
-    stop = set(stopwords.words('english'))
-    stop.update({"'s","'t","n't","'m","'ve","per","'re","-i","\'\'","\u2014","still","much"}) #After inspecting the output, found some prevalent spelling of trivial words to remove
-    exclude_punc = set(string.punctuation)
-    exclude_punc.update({'--','...'}) # After inspecting the output, found some nonconventional punctuations used in the review
-    lemma = WordNetLemmatizer()
-    
-    # From here on *doc* = one sentence
-    stop_free_per_doc = [[word.lower() for word in sent if word.lower() not in stop] for sent in word_tokenize_per_sent] #remove common stop words
-    punc_free_per_doc = [[word for word in sent if word not in exclude_punc] for sent in stop_free_per_doc] #remove punctuations
-    
-    # -- Cleaning: normalize/lemmatize words -- #
-    #First time try to run this straight, got: UnicodeDecodeError: 'ascii' codec can't decode byte 0xe2 in position 0: ordinal not in range(128)
-    #Seems like there are some weird non-ascii characters trialing some words or mixed in between words
-    normalized_per_doc2 = [[lemma.lemmatize(word) for word in doc] for doc in punc_free_per_doc]
-    print(normalized_per_doc2[10])
-    
-    # -- Prepare document-term matrix -- #
     import gensim
     from gensim import corpora
     
@@ -214,8 +96,8 @@ num_reviews = len(normalized_per_doc) #There were 10 reviews extracted
     doc_term_matrix2 = [dictionary2.doc2bow(doc) for doc in normalized_per_doc2] #This is also a 'corpus' in gensim: 
     #iterating over it yields each doc as its sparse vector representation
     print(doc_term_matrix[10])
-    
-    # -- Create LDA model -- #
+```
+##### -- Create LDA model -- 
     lda = gensim.models.ldamodel.LdaModel
     
     # Run and train lda model on doc_term_matrix
