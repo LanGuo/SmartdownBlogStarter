@@ -1,6 +1,6 @@
 ---
-title: Experiment with text analysis
-published: true
+title: Experiment with Text Analysis
+#published: true
 tags:
   - apples
 ---
