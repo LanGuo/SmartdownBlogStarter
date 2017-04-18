@@ -2,6 +2,7 @@
 layout: blog
 title: Experiment with text analysis
 published: true
+smartdown: true
 tags:
   - apples
 ---
