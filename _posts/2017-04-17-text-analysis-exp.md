@@ -183,14 +183,15 @@ print(normalized_per_doc2[10])
     plt.imshow(wordcloud)
     plt.axis("off")
     plt.title('Topic #{}'.format(str(i)))
-    ```    
+ ```    
 
 
 
 
-
+```
+# Output
     <matplotlib.text.Text at 0x11680c750>
-
+```
 
 
 ![png](/media/AMZN%20collagen%20review%20text%20analysis_8_1.png)
@@ -208,8 +209,10 @@ print(normalized_per_doc2[10])
 ```
 
 
-
+```
+# Output
     <matplotlib.text.Text at 0x115930810>
+```
 
 ![png](/media/AMZN%20collagen%20review%20text%20analysis_9_1.png)
 
