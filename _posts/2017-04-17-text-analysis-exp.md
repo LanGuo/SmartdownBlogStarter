@@ -209,18 +209,14 @@ print(normalized_per_doc2[10])
 
 
 
-
     <matplotlib.text.Text at 0x115930810>
 
-
-
-![png](/media//AMZN%20collagen%20review%20text%20analysis_9_1.png)
-
-
-    
+![png](/media/AMZN%20collagen%20review%20text%20analysis_9_1.png)
 
 
     
 
 
-Enter text in [Markdown](http://daringfireball.net/projects/markdown/). Use the toolbar above, or click the **?** button for formatting help.
+    
+
+
