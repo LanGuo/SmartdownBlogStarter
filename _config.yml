@@ -1,5 +1,5 @@
 # theme: jekyll-theme-architect
-markdown_ext: 'markdown,mkdown,mkdn,mkd'
+markdown_ext: 'markdown,mkdown,mkdn,mkd,md'
 # permalink: pretty
 # gems:
 #   - jekyll-optional-front-matter
