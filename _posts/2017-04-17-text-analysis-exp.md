@@ -170,7 +170,7 @@ print(normalized_per_doc2[10])
 
 
 
-![png](AMZN%20collagen%20review%20text%20analysis_files/AMZN%20collagen%20review%20text%20analysis_7_1.png)
+![png](/media//AMZN%20collagen%20review%20text%20analysis_7_1.png)
 
 
 ```
@@ -193,9 +193,7 @@ print(normalized_per_doc2[10])
 
 
 
-
-![png](AMZN%20collagen%20review%20text%20analysis_files/AMZN%20collagen%20review%20text%20analysis_8_1.png)
-
+![png](/media//AMZN%20collagen%20review%20text%20analysis_8_1.png)
 
 ```
     i=7
@@ -216,8 +214,7 @@ print(normalized_per_doc2[10])
 
 
 
-
-![png](AMZN%20collagen%20review%20text%20analysis_files/AMZN%20collagen%20review%20text%20analysis_9_1.png)
+![png](/media//AMZN%20collagen%20review%20text%20analysis_9_1.png)
 
 
     
