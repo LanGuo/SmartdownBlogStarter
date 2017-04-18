@@ -98,6 +98,7 @@ print(normalized_per_doc2[10])
     print(doc_term_matrix[10])
 ```
 ##### -- Create LDA model -- 
+```
     lda = gensim.models.ldamodel.LdaModel
     
     # Run and train lda model on doc_term_matrix
@@ -110,9 +111,10 @@ print(normalized_per_doc2[10])
     [u'still', u'cheaper', u'pound', u'company', u'website', u'looking', u'smaller', u'quantity', u'good', u'price.and', u'still', u'love']
     [(1, 1), (35, 1), (77, 2), (78, 1), (79, 1), (80, 1), (81, 1), (82, 1), (83, 1), (84, 1), (85, 1)]
 
+```
 
-
-    # -- Visualize topics --#
+##### -- Visualize topics --
+```
     # Code taken from https://gist.github.com/tokestermw/3588e6fbbb2f03f89798
     ## word lists
     for i in range(0, n_topics):
@@ -121,10 +123,11 @@ print(normalized_per_doc2[10])
         for term in temp:
             terms.append(term)
         print "Top 10 terms for topic #" + str(i) + ": "+ ", ".join([i[0] for i in terms])
+``` 
     
     
-    
-
+```
+# Output
 
     Top 10 terms for topic #0: hair, face, take, happening, top, tbsp, week, started, something, look
     Top 10 terms for topic #1: product, container, yes, never, put, getting, ca, keep, lid, go
@@ -136,10 +139,10 @@ print(normalized_per_doc2[10])
     Top 10 terms for topic #7: product, hair, would, month, nail, collagen, take, taking, better, thing
     Top 10 terms for topic #8: brand, like, collagen, get, little, might, way, well, huge, even
     Top 10 terms for topic #9: collagen, month, one, need, take, knee, better, look, away, work
+```
 
-
-
-    # -- Visualize topics --#
+##### -- Visualize topics --
+```
     # Code taken from https://gist.github.com/tokestermw/3588e6fbbb2f03f89798
     %matplotlib inline
     ## word clouds
@@ -159,22 +162,19 @@ print(normalized_per_doc2[10])
     plt.imshow(wordcloud)
     plt.axis("off")
     plt.title('Topic #{}'.format(str(i)))
+```  
     
-    
-
-
-
-
-
+```
+# Output
     <matplotlib.text.Text at 0x114467890>
-
+```
 
 
 
 ![png](AMZN%20collagen%20review%20text%20analysis_files/AMZN%20collagen%20review%20text%20analysis_7_1.png)
 
 
-
+```
     i=6
     temp = ldamodel2.show_topic(i, 10)
     terms = []
@@ -184,7 +184,7 @@ print(normalized_per_doc2[10])
     plt.imshow(wordcloud)
     plt.axis("off")
     plt.title('Topic #{}'.format(str(i)))
-    
+    ```    
 
 
 
@@ -198,7 +198,7 @@ print(normalized_per_doc2[10])
 ![png](AMZN%20collagen%20review%20text%20analysis_files/AMZN%20collagen%20review%20text%20analysis_8_1.png)
 
 
-
+```
     i=7
     temp = ldamodel2.show_topic(i, 10)
     terms = []
@@ -208,7 +208,7 @@ print(normalized_per_doc2[10])
     plt.imshow(wordcloud)
     plt.axis("off")
     plt.title('Topic #{}'.format(str(i)))
-
+```
 
 
 
