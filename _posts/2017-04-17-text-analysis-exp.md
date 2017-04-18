@@ -1,5 +1,4 @@
 ---
-layout: blog
 title: Experiment with text analysis
 published: true
 tags:
