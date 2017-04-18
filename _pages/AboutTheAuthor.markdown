@@ -4,7 +4,5 @@ permalink: /AboutTheAuthor/
 ---
 
 
-### About the Author
-
-I am you and you are he and we are all together.
-
+- Dan Keith, PhD:  Software Engineer at OHSU, Computer Scientist, entrepreneur, karaoke enthusiast. 
+- Lan Guo, PhD:  Post-doctoral Systems Neuroscientist at UO, data-scientist, perpetually curious. 
