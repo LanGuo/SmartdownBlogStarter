@@ -2,105 +2,105 @@
 layout: blog
 title: Experiment with text analysis
 published: true
+tags:
+  - apples
 ---
 
 ## Experiment with text analysis!
 
+### This ipython notebook is an experiment to scrape content from the web and do some semantic analysis with text data.
+- Scrape customer reviews from a collagen supplement powder product on Amazon.com
+- Store the review (text string data) locally 
+- Analyse the text data and attempt to isolate themes/topics 
+- Produce simple visualization of results
 
+#### -- Retrieve some AZ reviews for a collagen supplement product: -- 
+```
+import  requests 
+from lxml import html
+    
+url = 'https://www.amazon.com/Great-Lakes-Collagen-Hydrolysate-Grass-Fed/product-reviews/B01A1G47L0/ref=cm_cr_dp_see_all_summary/161-2449371-1192438?ie=UTF8&reviewerType=all_reviews&showViewpoints=1&sortBy=helpful'  #this is a popular collagen supplement powder
+    
+headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36'}
+    
+page = requests.get(url, headers=headers) 
+documents = [] #list to store documents(individual reviews) in
+   
+```
+#### -- Use beautifulsoup for parsing html string and extracting review elements -- 
+```
+from bs4 import BeautifulSoup
+soup = BeautifulSoup(page.content, 'html.parser') ## Beautiful Soup automatically converts incoming documents to Unicode and outgoing documents to UTF-8.
+for span in soup.findAll('span',attrs={"data-hook":"review-body"}):
+    documents.append(span.get_text())
+```        
+#### -- write reviews to txt file, notice they are in unicode encoding --    
+```
+import codecs
+for s in documents:
+    with codecs.open("/Users/Lan/Documents/kaggle/aztest.txt", "a", encoding="utf-8") as f:
+        f.write(s+u'\n')  #write each sentence on a new line in txt file
+```
 
-    ### This notebook is an experiment to scrape content from the web and do some semantic analysis with text data.
-    - Scrapes customer reviews from a collagen supplement powder product on Amazon.com
-    - stores the review (text string data) locally 
-    - analyses the text data and attempt to isolate themes/topics 
-    - produce simple visualization of results
+##### -- load text back out and do theme/feature extraction -- 
+```
+import codecs
+documents = codecs.open('/Users/Lan/Documents/kaggle/aztest.txt', encoding='utf-8').readlines()
+```
 
+#### -- Tokenize documents -- 
+```    
+# Having first installed nltk and downloaded nltk data:
+from nltk.tokenize import sent_tokenize  #This is the 'current recommended' sentence tokenizer in nltk
+#?sent_tokenize #to see which underlying model is this using:  currently :class:`.PunktSentenceTokenizer`
+sent_tokenize_list = [sent_tokenize(doc) for doc in documents]
+    
+from nltk.tokenize import word_tokenize #This is the 'current recommended' word tokenizer in nltk
+# NOTE: word tokenizer kept the end '.' of each sentence as one token
+word_tokenize_per_doc = [word_tokenize(doc) for doc in documents]
+    
+#word_tokenize_per_sent = [word_tokenize(sent) for sent in sent_tokenize_list] #keep sentence as individual documents
+#word_tokenize_list_all = word_tokenize(text) #lump all sentences into one document
+```    
 
-    # -- Retrieve some AZ reviews for a collagen supplement product: -- #
+#### -- Cleaning: Remove stop words and punctuation -- 
+```    
+from nltk.corpus import stopwords
+from nltk.stem.wordnet import WordNetLemmatizer
+import string
+stop = set(stopwords.words('english'))
+exclude_punc = set(string.punctuation)
+exclude_punc.update({'--','...'}) # After inspecting the output, found some nonconventional punctuations used in the review
+lemma = WordNetLemmatizer()
     
-    import  requests 
-    from lxml import html
-    from bs4 import BeautifulSoup
-    
-    url = 'https://www.amazon.com/Great-Lakes-Collagen-Hydrolysate-Grass-Fed/product-reviews/B01A1G47L0/ref=cm_cr_dp_see_all_summary/161-2449371-1192438?ie=UTF8&reviewerType=all_reviews&showViewpoints=1&sortBy=helpful'  #this is a popular collagen supplement powder
-    
-    
-    headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36'}
-    
-    
-    page = requests.get(url, headers=headers) 
-    documents = [] #list to store documents(individual reviews) in
-    
-    
-    #doc = html.fromstring(page.content)
-    #XPATH_REVIEWS = '//span[@data-hook="review-body"]//text()'
-    #reviews = doc.xpath(XPATH_REVIEWS)  #This is a list of sentences from reviews
+stop_free_per_doc = [[word.lower() for word in doc if word.lower() not in stop] for doc in word_tokenize_per_doc] #remove common stop words
+punc_free_per_doc = [[word for word in doc if word not in exclude_punc] for doc in stop_free_per_doc] #remove punctuations
+```
+
+#### -- Cleaning: normalize/lemmatize words -- 
+```
+#First time try to run this straight, got: UnicodeDecodeError: 'ascii' codec can't decode byte 0xe2 in position 0: ordinal not in range(128)
+#Seems like there are some weird non-ascii characters trialing some words or mixed in between words
+normalized_per_doc = []
+normalized_this_doc = []
+for doc in punc_free_per_doc:
+    for word in doc:
+        try:
+            lemma.lemmatize(word) #lemmatize (normalize/get root of) words
+            normalized_this_doc.append(word)
+        except UnicodeDecodeError:
+            print word #these are the weird non-ascii characters mixed into words, can ignore them or manually add the stem to normalized
+    normalized_per_doc.append(normalized_this_doc)
         
-    # -- NEW method: use beautifulsoup for parsing html string and extracting review elements -- #
-    soup = BeautifulSoup(page.content, 'html.parser')
-    ## Beautiful Soup automatically converts incoming documents to Unicode and outgoing documents to UTF-8.
-    for span in soup.findAll('span',attrs={"data-hook":"review-body"}):
-        documents.append(span.get_text())
-        
-    # -- write reviews to txt file, notice they are in unicode encoding -- #    
-    import codecs
-    for s in documents:
-        with codecs.open("/Users/Lan/Documents/kaggle/aztest.txt", "a", encoding="utf-8") as f:
-            f.write(s+u'\n')  #write each sentence on a new line in txt file
+num_reviews = len(normalized_per_doc) #There were 10 reviews extracted
+    
+    
+#normalized_per_doc[0]
+```
 
 
-
-    # -- load text back out and do theme/feature extraction -- #
-    import codecs
-    documents = codecs.open('/Users/Lan/Documents/kaggle/aztest.txt', encoding='utf-8').readlines()
-    
-    # -- Tokenize documents -- #
-    # Having first installed nltk and downloaded nltk data:
-    from nltk.tokenize import sent_tokenize  #This is the 'current recommended' sentence tokenizer in nltk
-    #?sent_tokenize #to see which underlying model is this using:  currently :class:`.PunktSentenceTokenizer`
-    sent_tokenize_list = [sent_tokenize(doc) for doc in documents]
-    
-    from nltk.tokenize import word_tokenize #This is the 'current recommended' word tokenizer in nltk
-    # NOTE: word tokenizer kept the end '.' of each sentence as one token
-    word_tokenize_per_doc = [word_tokenize(doc) for doc in documents]
-    
-    #word_tokenize_per_sent = [word_tokenize(sent) for sent in sent_tokenize_list] #keep sentence as individual documents
-    #word_tokenize_list_all = word_tokenize(text) #lump all sentences into one document
-    
-    
-    # -- Cleaning: Remove stop words and punctuation -- #
-    from nltk.corpus import stopwords
-    from nltk.stem.wordnet import WordNetLemmatizer
-    import string
-    stop = set(stopwords.words('english'))
-    exclude_punc = set(string.punctuation)
-    exclude_punc.update({'--','...'}) # After inspecting the output, found some nonconventional punctuations used in the review
-    lemma = WordNetLemmatizer()
-    
-    stop_free_per_doc = [[word.lower() for word in doc if word.lower() not in stop] for doc in word_tokenize_per_doc] #remove common stop words
-    punc_free_per_doc = [[word for word in doc if word not in exclude_punc] for doc in stop_free_per_doc] #remove punctuations
-    
-    # -- Cleaning: normalize/lemmatize words -- #
-    #First time try to run this straight, got: UnicodeDecodeError: 'ascii' codec can't decode byte 0xe2 in position 0: ordinal not in range(128)
-    #Seems like there are some weird non-ascii characters trialing some words or mixed in between words
-    normalized_per_doc = []
-    normalized_this_doc = []
-    for doc in punc_free_per_doc:
-        for word in doc:
-            try:
-                lemma.lemmatize(word) #lemmatize (normalize/get root of) words
-                normalized_this_doc.append(word)
-            except UnicodeDecodeError:
-                print word #these are the weird non-ascii characters mixed into words, can ignore them or manually add the stem to normalized
-        normalized_per_doc.append(normalized_this_doc)
-        
-    num_reviews = len(normalized_per_doc) #There were 10 reviews extracted
-    
-    
-    #normalized_per_doc[0]
-
-
-
-
+```
+# Output:
     [u'love',
      u'stuff',
      u'stir',
@@ -130,7 +130,7 @@ published: true
      u'superfood',
      u'particular',
      ...]
-
+```
 
     # -- Prepare document-term matrix -- #
     import gensim
@@ -338,6 +338,8 @@ published: true
 
 ![png](AMZN%20collagen%20review%20text%20analysis_files/AMZN%20collagen%20review%20text%20analysis_9_1.png)
 
+
+    
 
 
     
