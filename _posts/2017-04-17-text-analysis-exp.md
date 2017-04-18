@@ -2,7 +2,7 @@
 layout: blog
 published: false
 ---
-## Experiment with text analysis![AMZN collagen review text analysis_7_1.png]({{site.baseurl}}/media/AMZN collagen review text analysis_7_1.png)
+## Experiment with text analysis!
 
 
 
