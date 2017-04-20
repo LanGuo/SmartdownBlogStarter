@@ -3,7 +3,6 @@ title: Experiment with Text Analysis
 #published: true
 tags:
   - apples
-smartdown: true
 ---
 
 ## Experiment with text analysis!
